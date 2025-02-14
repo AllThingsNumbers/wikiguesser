@@ -22,11 +22,13 @@ def get_4_titles():
 
 # Function to get a random sentence from a Wiki article
 def get_rand_sentence(title):
+    normalised_title = title
     title = title.replace(' ', '_')
     article_url = f'https://en.wikipedia.org/wiki/{title}'
     
     response = req.get(article_url)
     if response.status_code != 200:
+        st.write(f'Failed to fetch {article_url}, status code: {response.status_code}')
         return None, None
     
     article_content = BeautifulSoup(response.text, 'html.parser')
@@ -37,7 +39,7 @@ def get_rand_sentence(title):
         par_text = par.get_text(separator=' ', strip=True)
         sentences.extend(par_text.split('. '))
     
-    title_words = set(title.lower().split())
+    title_words = set(normalised_title.lower().split())
     valid_sentences = [s for s in sentences if not any(word in s.lower() for word in title_words)]
     
     if len(valid_sentences) < 2:
@@ -48,18 +50,20 @@ def get_rand_sentence(title):
 # Streamlit UI
 st.title("Wikipedia Guesser Game")
 if st.button('Start Game'):
+    st.write('Please wait, as the game is being prepared.')
+
     drawn_titles = get_4_titles()
     correct_answer = random.randint(0, 3)
     chosen_title = drawn_titles[correct_answer]
     first_sent, rand_sent = get_rand_sentence(chosen_title)
-    
+    st.write('Please wait, as the game is being prepared.')
     if not first_sent:
         st.error("Could not retrieve a valid sentence. Try again.")
     else:
         st.subheader("Which article is this sentence from?")
         st.write(rand_sent)
         
-        answer = st.radio("Choose an article:", drawn_titles)
+        answer = st.radio("Choose an article:", drawn_titles.replace('_', ' '))
         if st.button('Submit Answer'):
             if answer == chosen_title:
                 st.success(f"Correct! The article was: {chosen_title}")
