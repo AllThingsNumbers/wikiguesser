@@ -49,7 +49,12 @@ def get_rand_sentence(title):
 
 # Streamlit UI
 st.title("Wikipedia Guesser Game")
-if st.button('Start Game'):
+
+if 'game_started' not in st.session_state:
+    st.session_state.game_started = False
+
+if st.button('Start Game') or st.session_state.game_started:
+    st.session_state.game_started = True
     st.write('Please wait, as the game is being prepared.')
 
     drawn_titles = get_4_titles()
@@ -70,6 +75,7 @@ if st.button('Start Game'):
             else:
                 st.error(f"Wrong! The correct article was: {chosen_title}")
             st.info(f"First sentence of the article: {first_sent}")
+            st.session_state.game_started = False
         
     if st.button('Play Again'):
         st.experimental_rerun()
