@@ -42,8 +42,8 @@ def get_rand_sentence(title):
     title_words = set(normalised_title.lower().split())
     valid_sentences = [s for s in sentences if not any(word in s.lower() for word in title_words)]
     
-    if len(valid_sentences) < 2:
-        return None, None
+    #if len(valid_sentences) < 2:
+    #    return None, None
     
     return valid_sentences[0], random.choice(valid_sentences[1:])
 
@@ -62,8 +62,8 @@ if st.button('Start Game'):
     else:
         st.subheader("Which article is this sentence from?")
         st.write(rand_sent)
-        
-        answer = st.radio("Choose an article:", drawn_titles.replace('_', ' '))
+        drawn_titles = drawn_titles.replace('_', ' ')
+        answer = st.radio("Choose an article:", drawn_titles)
         if st.button('Submit Answer'):
             if answer == chosen_title:
                 st.success(f"Correct! The article was: {chosen_title}")
