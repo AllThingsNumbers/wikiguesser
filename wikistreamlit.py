@@ -62,7 +62,7 @@ if st.button('Start Game'):
     else:
         st.subheader("Which article is this sentence from?")
         st.write(rand_sent)
-        drawn_titles = drawn_titles.replace('_', ' ')
+        drawn_titles = [title.replace('_', ' ') for title in drawn_titles]
         answer = st.radio("Choose an article:", drawn_titles)
         if st.button('Submit Answer'):
             if answer == chosen_title:
