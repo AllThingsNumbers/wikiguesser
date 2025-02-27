@@ -50,32 +50,77 @@ def get_rand_sentence(title):
 # Streamlit UI
 st.title("Wikipedia Guesser Game")
 
-if 'game_started' not in st.session_state:
-    st.session_state.game_started = False
 
-if st.button('Start Game') or st.session_state.game_started:
-    st.session_state.game_started = True
-    st.write('Please wait, as the game is being prepared.')
+# Session state setup
+if "game_state" not in st.session_state:
+    st.session_state.game_state = "not_started"
+if "drawn_titles" not in st.session_state:
+    st.session_state.drawn_titles = []
+if "correct_answer" not in st.session_state:
+    st.session_state.correct_answer = None
+if "rand_sent" not in st.session_state:
+    st.session_state.rand_sent = ""
+if "first_sent" not in st.session_state:
+    st.session_state.first_sent = ""
+if "selected_answer" not in st.session_state:
+    st.session_state.selected_answer = None
 
-    drawn_titles = get_4_titles()
-    correct_answer = random.randint(0, 3)
-    chosen_title = drawn_titles[correct_answer]
-    first_sent, rand_sent = get_rand_sentence(chosen_title)
-    st.write('Please wait, as the game is being prepared.')
-    if not first_sent:
-        st.error("Could not retrieve a valid sentence. Try again.")
-    else:
-        st.subheader("Which article is this sentence from?")
-        st.write(rand_sent)
-        drawn_titles = [title.replace('_', ' ') for title in drawn_titles]
-        answer = st.radio("Choose an article:", drawn_titles)
-        if st.button('Submit Answer'):
-            if answer == chosen_title:
-                st.success(f"Correct! The article was: {chosen_title}")
+# Start the game when button is clicked
+if st.button('(Re)Start Game'):
+    st.write('Welcome to Wiki Guesser.\nGuess the correct Wikipedia article based on the provided sample.\n\nPlease wait, as the game is being prepared.')
+    st.session_state.game_state = "playing"
+
+    while True:  # Keep trying until a valid sentence is found
+        st.session_state.drawn_titles = get_4_titles()
+        st.session_state.correct_answer = random.randint(0, 3)
+        chosen_title = st.session_state.drawn_titles[st.session_state.correct_answer]
+
+        first_sent, rand_sent = get_rand_sentence(chosen_title)
+
+        if first_sent and rand_sent:
+            st.session_state.first_sent = first_sent
+            st.session_state.rand_sent = rand_sent
+            break  # Exit loop when valid sentences are found
+
+    # st.session_state.drawn_titles = get_4_titles()
+    # st.session_state.correct_answer = random.randint(0, 3)
+    # chosen_title = st.session_state.drawn_titles[st.session_state.correct_answer]
+    
+    # first_sent, rand_sent = get_rand_sentence(chosen_title)
+    
+    # if not first_sent or not rand_sent:
+    #     st.error("Could not retrieve a valid sentence. Try again.")
+    #     st.session_state.game_state = "not_started"
+    # else:
+    #     st.session_state.first_sent = first_sent
+    #     st.session_state.rand_sent = rand_sent
+
+# Game UI
+if st.session_state.game_state == "playing":
+    st.subheader("Which article is this sentence from?")
+    st.write(st.session_state.rand_sent)
+    
+    # Radio button (stores answer in session state)
+    st.session_state.selected_answer = st.radio(
+        "Choose an article:",
+        [title.replace('_', ' ') for title in st.session_state.drawn_titles],
+        #st.session_state.drawn_titles,
+        index=None,
+        #key="selected_answer"
+    )
+
+    # Submit answer button
+    if st.button('Submit Answer'):
+        if st.session_state.selected_answer:  # Ensure an answer is selected
+            chosen_title = st.session_state.drawn_titles[st.session_state.correct_answer]
+            if st.session_state.selected_answer.replace(' ', '_') == chosen_title:
+                st.success(f"Correct! The article was: {chosen_title.replace('_', ' ')}")
             else:
-                st.error(f"Wrong! The correct article was: {chosen_title}")
-            st.info(f"First sentence of the article: {first_sent}")
-            st.session_state.game_started = False
-        
-    if st.button('Play Again'):
-        st.experimental_rerun()
+                st.error(f"Wrong! The correct article was: {chosen_title.replace('_', ' ')}")
+            st.info(f"First sentence of the article: {st.session_state.first_sent} \n\nPress (Re)Start Game above to play again.")
+            
+            # Reset the game state
+            st.session_state.game_state = "not_started"
+            st.session_state.selected_answer = None
+        else:
+            st.warning("Please select an answer before submitting.")
