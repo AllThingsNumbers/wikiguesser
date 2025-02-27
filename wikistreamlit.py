@@ -67,7 +67,7 @@ if "selected_answer" not in st.session_state:
 
 # Start the game when button is clicked
 if st.button('(Re)Start Game'):
-    st.write('Welcome to Wiki Guesser.\nGuess the correct Wikipedia article based on the provided sample.\n\nPlease wait, as the game is being prepared.')
+    st.write('Welcome to Wiki Guesser.\n\nGuess the correct Wikipedia article based on the provided sample.\n\nPlease wait, as the game is being prepared.')
     st.session_state.game_state = "playing"
 
     while True:  # Keep trying until a valid sentence is found
