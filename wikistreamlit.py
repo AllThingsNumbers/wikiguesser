@@ -58,7 +58,7 @@ def get_rand_sentence(title):
 
 # Streamlit UI
 st.title("Wikipedia Guesser Game")
-
+st.write('Welcome to Wiki Guesser.\n\nGuess the correct Wikipedia article based on the provided sample.')
 
 # Session state setup
 if "game_state" not in st.session_state:
@@ -75,10 +75,14 @@ if "selected_answer" not in st.session_state:
     st.session_state.selected_answer = None
 
 # Start the game when button is clicked
-if st.button('(Re)Start Game'):
-    st.write('Welcome to Wiki Guesser.\n\nGuess the correct Wikipedia article based on the provided sample.\n\nPlease wait, as the game is being prepared.')
+if st.session_state.game_state == "not_started":
+    #st.write('Welcome to Wiki Guesser.\n\nGuess the correct Wikipedia article based on the provided sample.\n\nPlease wait, as the game is being prepared.')
     st.session_state.game_state = "playing"
 
+if st.button('Pick a random article', key="draw_article"):
+
+    st.session_state.game_state = "playing"
+    st.write('Choosing 4 articles at random, please wait.')
     while True:  # Keep trying until a valid sentence is found
         st.session_state.drawn_titles = get_4_titles()
         st.session_state.correct_answer = random.randint(0, 3)
@@ -115,7 +119,7 @@ if st.session_state.game_state == "playing":
         [title.replace('_', ' ') for title in st.session_state.drawn_titles],
         #st.session_state.drawn_titles,
         index=None,
-        #key="selected_answer"
+        key=st.session_state.get("radio_key", "radio_default")
     )
 
     # Submit answer button
@@ -126,10 +130,15 @@ if st.session_state.game_state == "playing":
                 st.success(f"Correct! The article was: {chosen_title.replace('_', ' ')}")
             else:
                 st.error(f"Wrong! The correct article was: {chosen_title.replace('_', ' ')}")
-            st.info(f"First sentence of the article: {st.session_state.first_sent} \n\nPress (Re)Start Game above to play again.")
+            st.info(f"First sentence of the article: {st.session_state.first_sent} \n\nPress below button to play again.")
             
             # Reset the game state
             st.session_state.game_state = "not_started"
             st.session_state.selected_answer = None
+            if st.button('Play again', key="restart_after_answer"):
+                st.session_state.game_state = "not_started"
+                st.session_state.selected_answer = None  # Clear selection
+                st.session_state.radio_key = str(random.randint(0, 100000))  # Change key to reset radio
+                st.rerun()  # Force Streamlit to refresh the app
         else:
             st.warning("Please select an answer before submitting.")
