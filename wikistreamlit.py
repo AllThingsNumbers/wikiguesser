@@ -40,12 +40,21 @@ def get_rand_sentence(title):
         sentences.extend(par_text.split('. '))
     
     title_words = set(normalised_title.lower().split())
-    valid_sentences = [s for s in sentences if not any(word in s.lower() for word in title_words)]
+    #valid_sentences = [s for s in sentences if not any(word in s.lower() for word in title_words)]
+
+    valid_sentences = [
+    s for s in sentences
+    if not (
+        any(word in s.lower() for word in title_words)  # Exclude sentences containing title words
+        or any(word in s.lower() for word in ["stub", "expanding"])  # Exclude "stub" or "expanding"
+        or len(s) < 20  # Exclude short sentences
+    )
+]
     
     #if len(valid_sentences) < 2:
     #    return None, None
     
-    return valid_sentences[0], random.choice(valid_sentences[1:])
+    return sentences[0], random.choice(valid_sentences)
 
 # Streamlit UI
 st.title("Wikipedia Guesser Game")
