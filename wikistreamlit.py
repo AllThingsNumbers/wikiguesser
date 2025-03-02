@@ -51,6 +51,11 @@ def get_rand_sentence(title):
     )
     ]
     
+    # for valid_sent in valid_sentences:
+    #     for word in valid_sent:
+    #         if word in title_words:
+    #             word = "XXXXX"
+
     #if len(valid_sentences) < 2:
     #    return None, None
     
@@ -102,7 +107,7 @@ if st.button('Pick a random article', key="draw_article"):
     # st.session_state.drawn_titles = get_4_titles()
     # st.session_state.correct_answer = random.randint(0, 3)
     # chosen_title = st.session_state.drawn_titles[st.session_state.correct_answer]
-    
+    st.session_state.game_state = "drawn"
     # first_sent, rand_sent = get_rand_sentence(chosen_title)
     
     # if not first_sent or not rand_sent:
@@ -113,7 +118,7 @@ if st.button('Pick a random article', key="draw_article"):
     #     st.session_state.rand_sent = rand_sent
 
 # Game UI
-if st.session_state.game_state == "playing":
+if st.session_state.game_state == "drawn":
     st.subheader("Which article is this sentence from?")
     st.write(st.session_state.rand_sent)
     
