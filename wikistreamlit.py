@@ -49,7 +49,7 @@ def get_rand_sentence(title):
         or any(word in s.lower() for word in ["stub", "expanding"])  # Exclude "stub" or "expanding"
         or len(s) < 20  # Exclude short sentences
     )
-]
+    ]
     
     #if len(valid_sentences) < 2:
     #    return None, None
@@ -73,6 +73,8 @@ if "first_sent" not in st.session_state:
     st.session_state.first_sent = ""
 if "selected_answer" not in st.session_state:
     st.session_state.selected_answer = None
+if "chosen_html" not in st.session_state:
+    st.session_state.chosen_html = ""
 
 # Start the game when button is clicked
 if st.session_state.game_state == "not_started":
@@ -87,6 +89,8 @@ if st.button('Pick a random article', key="draw_article"):
         st.session_state.drawn_titles = get_4_titles()
         st.session_state.correct_answer = random.randint(0, 3)
         chosen_title = st.session_state.drawn_titles[st.session_state.correct_answer]
+        chosen_url = f'https://en.wikipedia.org/wiki/{chosen_title}'
+        st.session_state.chosen_html = f'<a href="{chosen_url}" target="_blank" rel="noopener noreferrer">{chosen_title.replace("_", " ")}</a>'
 
         first_sent, rand_sent = get_rand_sentence(chosen_title)
 
@@ -130,15 +134,19 @@ if st.session_state.game_state == "playing":
                 st.success(f"Correct! The article was: {chosen_title.replace('_', ' ')}")
             else:
                 st.error(f"Wrong! The correct article was: {chosen_title.replace('_', ' ')}")
-            st.info(f"First sentence of the article: {st.session_state.first_sent} \n\nPress below button to play again.")
+            st.info(f"First sentence of the article: {st.session_state.first_sent}")
+
+            st.write("Click the link to open the article and learn more about it: ") 
+            st.html(st.session_state.chosen_html)
+            st.write("\nor press the button at the top to play again.")
             
             # Reset the game state
-            st.session_state.game_state = "not_started"
-            st.session_state.selected_answer = None
-            if st.button('Play again', key="restart_after_answer"):
-                st.session_state.game_state = "not_started"
-                st.session_state.selected_answer = None  # Clear selection
-                st.session_state.radio_key = str(random.randint(0, 100000))  # Change key to reset radio
-                st.rerun()  # Force Streamlit to refresh the app
+            # st.session_state.game_state = "not_started"
+            # st.session_state.selected_answer = None
+            # if st.button('Play again', key="restart_after_answer"):
+            #     st.session_state.game_state = "not_started"
+            #     st.session_state.selected_answer = None  # Clear selection
+            #     st.session_state.radio_key = str(random.randint(0, 100000))  # Change key to reset radio
+            #     st.rerun()  # Force Streamlit to refresh the app
         else:
             st.warning("Please select an answer before submitting.")
